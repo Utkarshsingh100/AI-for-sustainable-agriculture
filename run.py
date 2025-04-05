@@ -31,6 +31,6 @@ def index():
     return render_template("index.html", response=response)
 
 # 👇 ADD THIS TO MAKE IT RUN
-if __name__ == "__main__":
-    print("🚀 Starting AgriAdvisor Flask App...")
-    app.run(debug=True)
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000, debug=True)
+
