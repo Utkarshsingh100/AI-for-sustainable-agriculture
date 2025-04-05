@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AgriAdvisor 🌱</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #f5f9f5;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .card {
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+        .response-box {
+            white-space: pre-wrap;
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 12px;
+            font-family: monospace;
+            border: 1px solid #c8e6c9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container d-flex justify-content-center">
+        <div class="col-lg-8 mt-5">
+            <div class="text-center header">
+                <h1>🌾 AgriAdvisor - Sustainable Farming AI</h1>
+                <p class="text-muted">Ask questions to smart farming agents</p>
+            </div>
+            <div class="card p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="agent" class="form-label">Choose an Agent</label>
+                        <select class="form-select" name="agent" id="agent" required>
+                            <option value="" disabled selected>-- Select Agent --</option>
+                            <option value="farmer_advisor">🧑‍🌾 Farmer Advisor</option>
+                            <option value="market_researcher">📈 Market Researcher</option>
+                            <option value="weather_station">🌦️ Weather Station</option>
+                            <option value="multi_agent">🤝 Multi-Agent (Market + Weather)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="query" class="form-label">Your Question</label>
+                        <textarea class="form-control" name="query" id="query" rows="3" placeholder="e.g., What crop should I grow this season?" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Ask 🤖</button>
+                </form>
+                {% if response %}
+                <div class="mt-4">
+                    <h5>🧠 Agent Response:</h5>
+                    <div class="response-box">{{ response }}</div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>
