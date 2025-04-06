@@ -1,13 +1,13 @@
-# agents/weather_station.py
-
+import os
 import ollama
 import pandas as pd
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_PATH = os.path.normpath(os.path.join(BASE_DIR, '..', 'data', 'farmer_advisor_dataset.csv'))
 
-DATA_PATH = 'data/farmer_advisor_dataset.csv'  # or you can use a separate weather dataset if available
 
 def get_weather_info(user_input):
     try:
-        # You can include relevant data if needed; here we simulate weather context
+  
         df = pd.read_csv(DATA_PATH)
         top_rows = df.head(5).to_string(index=False)
 
