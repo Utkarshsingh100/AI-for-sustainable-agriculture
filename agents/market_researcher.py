@@ -1,14 +1,14 @@
 import ollama
 import pandas as pd
+import os
 
-DATA_PATH = 'data/market_researcher_dataset.csv'
-
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_PATH = os.path.normpath(os.path.join(BASE_DIR, '..', 'data', 'market_researcher_dataset.csv'))
 
 def get_market_insights(user_input):
     try:
         df = pd.read_csv(DATA_PATH)
 
-        # Group by Product to get average price, demand, and trend scores
         summary = df.groupby('Product').agg({
             'Market_Price_per_ton': 'mean',
             'Demand_Index': 'mean',
@@ -16,7 +16,6 @@ def get_market_insights(user_input):
             'Consumer_Trend_Index': 'mean'
         }).reset_index()
 
-        # Sort by high demand and low supply (higher score = better market potential)
         summary['Market_Score'] = (
             summary['Market_Price_per_ton'] * 0.3 +
             summary['Demand_Index'] * 0.3 +
@@ -24,33 +23,32 @@ def get_market_insights(user_input):
             summary['Supply_Index'] * 0.1
         )
 
-        top_crop = summary.sort_values('Market_Score', ascending=False).iloc[0]['Product']
+        summary = summary.sort_values('Market_Score', ascending=False)
+        top_crop = summary.iloc[0]['Product']
 
-        # Send summary data and top crop to the model
-        table = summary.to_string(index=False)
+        table = summary.head(5).to_string(index=False)
 
         prompt = f"""
-You are an agriculture market analyst helping a farmer choose the most profitable crop for next month.
+You are an agricultural market analyst. Recommend the best crop(s) to sell next month based on this market data.
 
-Here is a market summary table with averaged metrics for each crop:
+SUMMARY TABLE:
 {table}
-
-Based on the current data and trends, answer the following question:
 
 QUESTION:
 {user_input}
 
-Answer clearly and recommend the best crop to sell next month based on demand, price, and consumer trend index.
+Limit response to the top 1–2 crops. Be direct, use data points if needed, and keep it under 3 sentences.
 """
 
         response = ollama.chat(
             model='phi',
             messages=[
-                {'role': 'system', 'content': 'You are a data-driven agricultural market analyst.'},
+                {'role': 'system', 'content': 'You are a concise agricultural market analyst. No fluff. Just actionable insights.'},
                 {'role': 'user', 'content': prompt}
             ]
         )
-        return response['message']['content']
+
+        return response['message']['content'].strip()
 
     except Exception as e:
         return f"❌ Error while analyzing market data: {e}"
