@@ -1,51 +1,50 @@
-# agents/farmer_advisor.py
-
+import os
 import ollama
 import pandas as pd
 from agents.multi_agent_router import ask_agent
 
-DATA_PATH = 'data/farmer_advisor_dataset.csv'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_PATH = os.path.normpath(os.path.join(BASE_DIR, '..', 'data', 'farmer_advisor_dataset.csv'))
 
 def get_advice(user_input):
     try:
         df = pd.read_csv(DATA_PATH)
         top_rows = df.head(5).to_string(index=False)
 
-        # If the user input is related to profit/sales/market, collaborate
+        collaborative_note = ""
         if any(keyword in user_input.lower() for keyword in ['sell', 'price', 'profit', 'market']):
             print("🔁 Collaborating with Market Researcher...")
             market_insights = ask_agent("market_researcher", user_input)
-            collaborative_note = f"\n\n📈 Market Researcher says:\n{market_insights}\n"
+            collaborative_note = f"\n\n[Market Researcher says: {market_insights.strip()}]"
 
         elif any(keyword in user_input.lower() for keyword in ['rain', 'temperature', 'weather', 'irrigation']):
             print("🔁 Collaborating with Weather Station...")
             weather_insights = ask_agent("weather_station", user_input)
-            collaborative_note = f"\n\n🌦️ Weather Station says:\n{weather_insights}\n"
-
-        else:
-            collaborative_note = ""
+            collaborative_note = f"\n\n[Weather Station says: {weather_insights.strip()}]"
 
         prompt = f"""
-You are a helpful farming advisor focused on sustainability and resource optimization.
-Use the dataset below and collaborate with other experts if needed to suggest what crop the farmer should grow.
+You are a farming advisor who provides precise, sustainable, and resource-optimized suggestions to farmers.
+Use the following data and any additional insights to suggest what crop a farmer should grow.
 
-DATASET:
+DATA SAMPLE:
 {top_rows}
 
 QUESTION:
 {user_input}
 {collaborative_note}
+
+Be brief. Give only the most relevant advice in 2–3 sentences.
 """
 
         response = ollama.chat(
             model='phi',
             messages=[
-                {'role': 'system', 'content': 'You are a helpful and smart farmer advisor.'},
+                {'role': 'system', 'content': 'You are a concise and smart farming advisor. Avoid filler words and get straight to the point.'},
                 {'role': 'user', 'content': prompt}
             ]
         )
 
-        return response['message']['content']
+        return response['message']['content'].strip()
 
     except Exception as e:
         return f"Error while processing advice: {e}"
