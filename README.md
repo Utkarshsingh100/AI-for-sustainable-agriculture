@@ -1,0 +1,1 @@
+To launch the web-based application, run run.py. This will start the Flask server and provide a local URL (e.g., http://localhost:5000) where you can interact with the AgriAdvisor agents through the browser interface.
